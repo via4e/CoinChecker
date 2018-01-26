@@ -1,37 +1,38 @@
 'use strict'
+const config = require('config');
+const express=require('express');
+const app=express();
 
-let express=require('express');
-    let app=express();
+const request = require ('request');
 
-let request = require ('request');
-
-let loki = require ('lokijs');
+const loki = require ('lokijs');
     let db = new loki ('ex.json');
 
 app.set ('views', __dirname + '/views/');
 app.set('view engine', 'pug');
 
-app.listen(8063);
-console.log('APP_CRGR start on 8063 port..');
+app.use(express.static('static'));
+
+app.listen(config.port, () => {
+    console.info(`Listening to c http://localhost:${config.port}`);
+});
 
 // Prepare DB
     let tickers = db.addCollection ('tickers');
-    //tickers.insert ({ exchange:'poloniex', ticker: 'btcusd'})
-    //tickers.insert ({ exchange:'wex', ticker: 'btcusd'})    
-    //tickers.insert ({ exchange:'bittrex', ticker: 'btcusd'})
-    //tickers.insert ({ exchange:'hitbtc', ticker: 'btcusd'})        
 
 // Start fetching currencies data
     setInterval ( updateTickers, 6000)
 
 // Index Page
-
 app.get('/',function (req,res){
     // res.send('hi');
   res.render('index', { title: 'Hey', message: 'Hello there!' })
-  console.log(tickers.data)
 });
 
+//API Tickers
+app.get('/tickers',function (req,res){
+  res.send(tickers.data);
+});
 
 // Board Page
 app.get('/board', function (req, res) {
@@ -39,13 +40,26 @@ app.get('/board', function (req, res) {
 });
 
 // Updater
-
 function updateTickers () {
 	console.log('update tickers', Date.now() );
 	//poloniexTickers ();
 	//bittrexTickers ();
 	wexTickers ();
 }
+
+
+//Other Errors
+app.use(function (err, req, res, next) {
+  console.error(err.stack)
+  res.status(500).send('Something broke!')
+})
+
+//404
+app.use(function (req, res, next) {
+  res.status(404).send("Page not found")
+})
+
+
 
 // Function (..modules in future..) for
 // Fetch tickers from different exchanges
@@ -81,8 +95,8 @@ function bittrexTickers () {
     } else {
        console.log("Bittrex got an error: ", error, ", status code: ", response.statusCode)
     }
-  });
-}
+  });//request
+}//bittrexTickers
 
 function wexTickers () {
   request('https://wex.nz/api/3/ticker/btc_usd-btc_rur', (error, response, body)=> {
@@ -104,8 +118,8 @@ function wexTickers () {
     } else {
        console.log("Wex got an error: ", error, ", status code: ", response.statusCode)
     }
-  });
-}
+  });//request
+}//wexTickers
 
 
 
