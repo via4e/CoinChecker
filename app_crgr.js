@@ -5,8 +5,7 @@ const app=express();
 
 const request = require ('request');
 
-const loki = require ('lokijs');
-    let db = new loki ('ex.json');
+let tickers={};
 
 app.set ('views', __dirname + '/views/');
 app.set('view engine', 'pug');
@@ -31,7 +30,7 @@ app.get('/',function (req,res){
 
 //API Tickers
 app.get('/tickers',function (req,res){
-  res.send(tickers.data);
+  res.send(tickers);
 });
 
 // Board Page
@@ -74,10 +73,10 @@ function poloniexTickers () {
      		//console.log('polo:', i, polo[i].last);
      		switch (i) {
      		  case 'USDT_BTC':
-     		      tickers.insert ({ exchange:'poloniex', ticker: 'btcusdt', last: polo[i].last })
+     		     // tickers.insert ({ exchange:'poloniex', ticker: 'btcusdt', last: polo[i].last })
      		      break;
      		  case 'BTC_XEM':
-     		      tickers.insert ({ exchange:'poloniex', ticker: 'btcxem', last: polo[i].last })
+     		     // tickers.insert ({ exchange:'poloniex', ticker: 'btcxem', last: polo[i].last })
      		      break;
      		}
      	}     	
@@ -104,15 +103,23 @@ function wexTickers () {
      	console.log ('Wex tickers catched');
      	let wex = JSON.parse(body);
      	//console.log('wex:', wex);
+
+        tickers.wex?null:tickers.wex={};
+
      	for (let i in wex) {
      		console.log('wex:', i, wex[i].last);
      		switch (i) {
      		  case 'btc_usd':
-     		      tickers.insert ({ exchange:'wex', ticker: 'btcusd', last: wex[i].last })
+                  if(tickers.wex.btcusd){
+                    tickers.wex.btcusd={
+                        last: 'undefined'
+                    }
+                  }
+                    tickers.wex.btcusd.last=wex[i].last
      		      break;
-     		  case 'btc_rur':
+     		/*  case 'btc_rur':
      		      tickers.insert ({ exchange:'wex', ticker: 'btcrur', last: wex[i].last })
-     		      break;
+     		      break;*/
      		}
      	}
     } else {
@@ -120,6 +127,3 @@ function wexTickers () {
     }
   });//request
 }//wexTickers
-
-
-
