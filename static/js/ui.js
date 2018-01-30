@@ -18,10 +18,16 @@ function startMe () {
             let html = '<table><thead><tr></tr></thead><tbody>'
 
             for (let i in data) {
+                
+                let exchange = data[i];
 
-            	console.log(`tickers:`, data[i])
+                html+='<tr><td>&nbsp;</td><tr><tr><td><strong>'+ i + '</strong></td><tr>'                 
 
-            	html+='<tr><td>'+ data[i].exchange +'</td><td>'+ data[i].ticker +'</td><td>'+ data[i].last + '</td><tr>'
+                    for (let y in exchange) {
+
+                        html+='<tr><td>'+ exchange[y].name +'</td><td>'+ exchange[y].last + '</td><tr>'                        
+
+                    }
 
             }
 
@@ -33,5 +39,3 @@ function startMe () {
             console.log('fail,', f.status)
         });
 };
-
-
