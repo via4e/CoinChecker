@@ -208,7 +208,7 @@ function bittrexTickers () {
 }//bittrexTickers
 
 function wexTickers () {
-  request('https://wex.nz/api/3/ticker/btc_usd-btc_rur-btcet_btc-zec_btc-bch_btc-eth_btc-ltc_btc', (error, response, body)=> {
+  request('https://wex.nz/api/3/ticker/btc_usd-btc_rur-usd_rur-bch_usd-bch_btc-eth_btc-eth_usd-eth_rur-ltc_btc-ltc_rur-ltc_usd-zec_btc-zec_usd-btcet_btc-ethet_eth-ltcet_ltc', (error, response, body)=> {
     if (!error && response.statusCode === 200) {
      	console.log ('Wex tickers catched');
      	let wex = JSON.parse(body);
@@ -226,19 +226,46 @@ function wexTickers () {
      		      break;
           case 'btcet_btc':
               tickers.wex.btcet_btc={ exchange:'wex', name: 'BTCET/BTC', ticker: 'btcet_btc', last: wex[i].last } 
-              break;              
+              break;
+          case 'ltcet_ltc':
+              tickers.wex.ltcet_ltc={ exchange:'wex', name: 'LTCET/LTC', ticker: 'ltcet_ltc', last: wex[i].last } 
+              break; 
+          case 'ethet_eth':
+              tickers.wex.ethet_eth={ exchange:'wex', name: 'ETHET/ETH', ticker: 'ethet_eth', last: wex[i].last } 
+              break;                                           
           case 'zec_btc':
               tickers.wex.zec_btc={ exchange:'wex', name: 'ZEC/BTC', ticker: 'zec_btc', last: wex[i].last } 
               break;
+          case 'zec_usd':
+              tickers.wex.zec_usd={ exchange:'wex', name: 'ZEC/USD', ticker: 'zec_usd', last: wex[i].last } 
+              break;              
           case 'bch_btc':
               tickers.wex.bch_btc={ exchange:'wex', name: 'BCH/BTC', ticker: 'bch_btc', last: wex[i].last } 
-              break;              
+              break;  
+          case 'bch_usd':
+              tickers.wex.bch_usd={ exchange:'wex', name: 'BCH/USD', ticker: 'bch_usd', last: wex[i].last } 
+              break;                          
           case 'eth_btc':
               tickers.wex.eth_btc={ exchange:'wex', name: 'ETH/BTC', ticker: 'eth_btc', last: wex[i].last } 
               break;
+          case 'eth_rur':
+              tickers.wex.eth_rur={ exchange:'wex', name: 'ETH/RUR', ticker: 'eth_rur', last: wex[i].last } 
+              break;              
+          case 'eth_usd':
+              tickers.wex.eth_usd={ exchange:'wex', name: 'ETH/USD', ticker: 'eth_usd', last: wex[i].last } 
+              break;              
           case 'ltc_btc':
               tickers.wex.ltc_btc={ exchange:'wex', name: 'LTC/BTC', ticker: 'ltc_btc', last: wex[i].last } 
               break;
+          case 'ltc_rur':
+              tickers.wex.ltc_rur={ exchange:'wex', name: 'LTC/RUR', ticker: 'ltc_rur', last: wex[i].last } 
+              break;              
+         case 'ltc_usd':
+              tickers.wex.ltc_usd={ exchange:'wex', name: 'LTC/USD', ticker: 'ltc_usd', last: wex[i].last } 
+              break;              
+          case 'usd_rur':
+              tickers.wex.eth_usd={ exchange:'wex', name: 'USD/RUR', ticker: 'usd_rur', last: wex[i].last } 
+              break;  
      		}
      	}
     } else {
