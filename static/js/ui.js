@@ -17,18 +17,26 @@ function startMe () {
             //console.log(`tickers:`, data)
             let html = '<table><thead><tr></tr></thead><tbody>'
 
+            //    exmo
+
             for (let i in data) {
-                
                 let exchange = data[i];
-
-                html+='<tr><td>&nbsp;</td><tr><tr><td><strong>'+ i + '</strong></td><tr>'                 
-
+                 if (i=='exmo'){
+                    html+='<tr><td>&nbsp;</td><tr><tr><td><strong>'+ i + '</strong></td><tr>' 
                     for (let y in exchange) {
-
-                        html+='<tr><td>'+ exchange[y].name +'</td><td>'+ exchange[y].last + '</td><tr>'                        
-
+                            html+='<tr><td>'+ exchange[y].name +'</td><td>'+ exchange[y].last + '</td><tr>'
                     }
+                 }
+            }
 
+            // other
+
+            for (let i in data) {
+                let exchange = data[i];
+                    html+='<tr><td>&nbsp;</td><tr><tr><td><strong>'+ i + '</strong></td><tr>' 
+                    for (let y in exchange) {
+                        html+='<tr><td>'+ exchange[y].name +'</td><td>'+ exchange[y].last + '</td><tr>'
+                    }
             }
 
             html+='</tbody></table>';

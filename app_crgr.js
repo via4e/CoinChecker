@@ -1,4 +1,5 @@
-// CoinChecker v1.3
+// CoinChecker v1.4
+console.warn('Coin Checker start');
 
 'use strict'
 const config = require('config');
@@ -8,9 +9,10 @@ const app=express();
 const request = require ('request');
 
 let tickers={};
-      tickers.wex={};
       tickers.polo={};
       tickers.bitt={};
+      tickers.marcap={};
+      tickers.exmo={};
 
 app.set ('views', __dirname + '/views/');
 app.set('view engine', 'pug');
@@ -36,19 +38,14 @@ app.get('/tickers',function (req,res){
   res.send(tickers);
 });
 
-// Board Page
-//app.get('/board', function (req, res) {
-//   console.log('board page', tickers)
-//});
-
 // Updater
 function updateTickers () {
 	console.log('update tickers', Date.now() );
+    exmoTickers();
 	poloniexTickers ();
 	bittrexTickers ();
-	wexTickers ();
+    coinmarketcap();
 }
-
 
 //Other Errors
 app.use(function (err, req, res, next) {
@@ -61,11 +58,24 @@ app.use(function (req, res, next) {
   res.status(404).send("Page not found")
 })
 
-
-
 // Function (..modules in future..) for
 // Fetch tickers from different exchanges
 // Poloniex, Bittrex, Wex, HitBTC, Binance, Yobit
+
+function coinmarketcap(){
+  request('https://api.coinmarketcap.com/v2/global', (error, response, body)=> {
+    if (!error && response.statusCode === 200) {
+     	let marcap = JSON.parse(body);
+     	marcap = marcap.data;
+
+        tickers.marcap.btcdom = { exchange:'marcap', name: 'BTC dominance:', ticker: 'btcdom', last :  marcap.bitcoin_percentage_of_market_cap }
+        tickers.marcap.totalcap = { exchange:'marcap', name: 'Market Cap:', ticker: 'totalcap', last :  marcap.quotes.USD.total_market_cap }
+
+    } else {
+        console.log("CoinMarketCap got an error: ", error, ", status code: ", response.statusCode)
+    }
+ }); //request  
+}
 
 function poloniexTickers () {
   request('https://poloniex.com/public?command=returnTicker', (error, response, body)=> {
@@ -74,7 +84,7 @@ function poloniexTickers () {
      	console.log ('Poloniex tickers catched');
      	for (let i in polo) {
      		//console.log('polo:', i, polo[i].last);
-     		switch (i) {
+       	switch (i) {
      		  case 'USDT_BTC':
               tickers.polo.btc_usdt={ exchange:'poloniex', name: 'BTC/USDT', ticker: 'btc_usdt', last: polo[i].last }
      		      break;
@@ -207,69 +217,30 @@ function bittrexTickers () {
   });//request
 }//bittrexTickers
 
-function wexTickers () {
-  request('https://wex.nz/api/3/ticker/btc_usd-btc_rur-usd_rur-bch_usd-bch_btc-eth_btc-eth_usd-eth_rur-ltc_btc-ltc_rur-ltc_usd-zec_btc-zec_usd-btcet_btc-ethet_eth-ltcet_ltc', (error, response, body)=> {
-    if (!error && response.statusCode === 200) {
-     	console.log ('Wex tickers catched');
-     	let wex = JSON.parse(body);
 
-     	//console.log('wex:', tickers.wex);
-
-     	for (let i in wex) {
-     		//console.log('wex:', i, wex[i].last );
-     		switch (i) {
-     		  case 'btc_usd':
-              tickers.wex.btc_usd={ exchange:'wex', name: 'BTC/USD', ticker: 'btc_usd', last: wex[i].last } 
-     		      break;
-     		  case 'btc_rur':
-              tickers.wex.btc_rur={ exchange:'wex', name: 'BTC/RUR', ticker: 'btc_rur', last: wex[i].last } 
-     		      break;
-          case 'btcet_btc':
-              tickers.wex.btcet_btc={ exchange:'wex', name: 'BTCET/BTC', ticker: 'btcet_btc', last: wex[i].last } 
-              break;
-          case 'ltcet_ltc':
-              tickers.wex.ltcet_ltc={ exchange:'wex', name: 'LTCET/LTC', ticker: 'ltcet_ltc', last: wex[i].last } 
-              break; 
-          case 'ethet_eth':
-              tickers.wex.ethet_eth={ exchange:'wex', name: 'ETHET/ETH', ticker: 'ethet_eth', last: wex[i].last } 
-              break;                                           
-          case 'zec_btc':
-              tickers.wex.zec_btc={ exchange:'wex', name: 'ZEC/BTC', ticker: 'zec_btc', last: wex[i].last } 
-              break;
-          case 'zec_usd':
-              tickers.wex.zec_usd={ exchange:'wex', name: 'ZEC/USD', ticker: 'zec_usd', last: wex[i].last } 
-              break;              
-          case 'bch_btc':
-              tickers.wex.bch_btc={ exchange:'wex', name: 'BCH/BTC', ticker: 'bch_btc', last: wex[i].last } 
-              break;  
-          case 'bch_usd':
-              tickers.wex.bch_usd={ exchange:'wex', name: 'BCH/USD', ticker: 'bch_usd', last: wex[i].last } 
-              break;                          
-          case 'eth_btc':
-              tickers.wex.eth_btc={ exchange:'wex', name: 'ETH/BTC', ticker: 'eth_btc', last: wex[i].last } 
-              break;
-          case 'eth_rur':
-              tickers.wex.eth_rur={ exchange:'wex', name: 'ETH/RUR', ticker: 'eth_rur', last: wex[i].last } 
-              break;              
-          case 'eth_usd':
-              tickers.wex.eth_usd={ exchange:'wex', name: 'ETH/USD', ticker: 'eth_usd', last: wex[i].last } 
-              break;              
-          case 'ltc_btc':
-              tickers.wex.ltc_btc={ exchange:'wex', name: 'LTC/BTC', ticker: 'ltc_btc', last: wex[i].last } 
-              break;
-          case 'ltc_rur':
-              tickers.wex.ltc_rur={ exchange:'wex', name: 'LTC/RUR', ticker: 'ltc_rur', last: wex[i].last } 
-              break;              
-         case 'ltc_usd':
-              tickers.wex.ltc_usd={ exchange:'wex', name: 'LTC/USD', ticker: 'ltc_usd', last: wex[i].last } 
-              break;              
-          case 'usd_rur':
-              tickers.wex.eth_usd={ exchange:'wex', name: 'USD/RUR', ticker: 'usd_rur', last: wex[i].last } 
-              break;  
-     		}
-     	}
-    } else {
-       console.log("Wex got an error: ", error, ", status code: ", response.statusCode)
-    }
-  });//request
-}//wexTickers
+function exmoTickers () {
+    request('https://api.exmo.com/v1/ticker/', (error, response, body)=> {
+        if (!error && response.statusCode === 200) {
+            let exmo = JSON.parse(body);
+            tickers.exmo.btc_xem = { exchange:'exmo', name: 'BTC/XEM', ticker: 'btc_xem', last: 111 }
+            console.log ('EXMO tickers catched',exmo);
+            for (let i in exmo) {
+                 switch (i) {
+                     case 'BTC_USD':
+                         tickers.exmo.btc_xem = { exchange:'exmo', name: 'BTC_USD', ticker: 'btc_xem', last: exmo[i].avg }
+                         break;
+                     case 'XEM_BTC':
+                         tickers.exmo.usdt_btc = { exchange:'exmo', name: 'XEM_BTC', ticker: 'usdt_btc', last: exmo[i].avg }
+                         break;
+                     case 'ZEC_USD':
+                         tickers.exmo.usdt_bcc = { exchange:'exmo', name: 'ZEC_USD', ticker: 'usdt_bcc', last: exmo[i].avg }
+                         break;
+                     default:
+                         break;
+                 }
+            }
+        } else {
+            console.log("EXMO got an error: ", error, ", status code: ", response.statusCode)
+        }
+    });//request
+}//bittrexTickers
