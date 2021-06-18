@@ -41,7 +41,7 @@ app.get('/tickers',function (req,res){
 // Updater
 function updateTickers () {
 	console.log('update tickers', Date.now() );
-    exmoTickers();
+    //exmoTickers();
 	poloniexTickers ();
 	bittrexTickers ();
     coinmarketcap();
